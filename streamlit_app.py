@@ -27,4 +27,10 @@ streamlit.header("Fruityvice Fruit Advice!")
 
 import requests
 fruityvice_response = requests.get("https://fruityvice.com/api/fruit/watermelon")
-streamlit.text(fruityvice_response.json())
+streamlit.text(fruityvice_response.json()) # esto solo imprime la cadena del json
+
+# tokeniza el json y al parecer lo mete a undata frame de pandas
+fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+# pareciera que aqui usa el dataframe para mostrar los datos que obtuvo
+streamlit.dataframe(fruityvice_normalized)
+
