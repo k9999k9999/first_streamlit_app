@@ -49,8 +49,8 @@ try:
 except URLError as e:
   streamlit.error()
 
-#no va a correr nada de lo qeu haya adelante
-streamlit.stop()
+#no va a correr nada de lo qeu haya adelante cuando la sig linea esté descomentada
+#streamlit.stop()
 # usando Streamlit con Snowflake
 # import snowflake.connector  <----- lo pase para arriba para tener mas ordenado todo
 
