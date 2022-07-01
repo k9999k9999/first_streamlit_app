@@ -1,5 +1,8 @@
 import streamlit
 import pandas
+import requests
+import snowflake.connector
+from  urllib.error import URLError
 
 my_fruit_list = pandas.read_csv("https://uni-lab-files.s3.us-west-2.amazonaws.com/dabw/fruit_macros.txt")
 my_fruit_list = my_fruit_list.set_index('Fruit')
@@ -24,23 +27,27 @@ streamlit.dataframe(fruits_to_show)
 
 # Codigo para usar la API con REST Requests
 streamlit.header("Fruityvice Fruit Advice!")
-fruit_choice = streamlit.text_input('What fruit would you like information about?','Kiwi')
-streamlit.write('The user entered ', fruit_choice)
+try:
+  fruit_choice = streamlit.text_input('What fruit would you like information about?')
+  #streamlit.write('The user entered ', fruit_choice)
+  if not fruit_choice:
+    streamlit.error("Please select a fruit to get information.")
+  else:
+    # import requests  <----- lo pase para arriba para tener mas ordenado todo
+    fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
+    # streamlit.text(fruityvice_response.json()) # esto solo imprime la cadena del json
+    # tokeniza el json y al parecer lo mete a undata frame de pandas
+    fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
+    # pareciera que aqui usa el dataframe para mostrar los datos que obtuvo
+    streamlit.dataframe(fruityvice_normalized)
 
-
-import requests
-fruityvice_response = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
-# streamlit.text(fruityvice_response.json()) # esto solo imprime la cadena del json
-
-# tokeniza el json y al parecer lo mete a undata frame de pandas
-fruityvice_normalized = pandas.json_normalize(fruityvice_response.json())
-# pareciera que aqui usa el dataframe para mostrar los datos que obtuvo
-streamlit.dataframe(fruityvice_normalized)
+except URLError as e:
+  streamlit.error()
 
 #no va a correr nada de lo qeu haya adelante
 streamlit.stop()
 # usando Streamlit con Snowflake
-import snowflake.connector
+# import snowflake.connector  <----- lo pase para arriba para tener mas ordenado todo
 
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
 my_cur = my_cnx.cursor()
